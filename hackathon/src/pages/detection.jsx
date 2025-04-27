@@ -1,19 +1,18 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
+import Webcam from "react-webcam";
 import * as tf from "@tensorflow/tfjs";
 import * as cocossd from "@tensorflow-models/coco-ssd";
-import Webcam from "react-webcam";
-import { drawRect } from "../assets/js/utilities.js";
-
-
+import { drawRect } from "../assets/js/utilities";
+import PredictionHistory from "../components/PredictionHistory";
+import header from "../components/header";
 
 function Detection() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const modelRef = useRef(null); // ✅ pour ne charger qu'une fois le modèle
+  const modelRef = useRef(null);
   const [imgSrc, setImgSrc] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // Chargement initial du modèle + historique
   useEffect(() => {
     const loadModelAndHistory = async () => {
       modelRef.current = await cocossd.load();
@@ -23,11 +22,10 @@ function Detection() {
     loadModelAndHistory();
   }, []);
 
-  // Détection continue
   useEffect(() => {
     const interval = setInterval(() => {
       detect();
-    }, 100); // évite de trop solliciter la machine
+    }, 100);
 
     return () => clearInterval(interval);
   }, []);
@@ -36,117 +34,89 @@ function Detection() {
     const video = webcamRef.current?.video;
     const net = modelRef.current;
 
-    if (
-      video &&
-      video.readyState === 4 &&
-      canvasRef.current &&
-      net
-    ) {
-      const videoWidth = video.videoWidth;
-      const videoHeight = video.videoHeight;
+    if (!video || video.readyState !== 4 || !canvasRef.current || !net) return;
 
-      // Mise à jour des dimensions
-      webcamRef.current.video.width = videoWidth;
-      webcamRef.current.video.height = videoHeight;
-      canvasRef.current.width = videoWidth;
-      canvasRef.current.height = videoHeight;
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+    webcamRef.current.video.width = videoWidth;
+    webcamRef.current.video.height = videoHeight;
+    canvasRef.current.width = videoWidth;
+    canvasRef.current.height = videoHeight;
 
-      const predictions = await net.detect(video);
-      const ctx = canvasRef.current.getContext("2d");
-      drawRect(predictions, ctx);
-    }
+    const predictions = await net.detect(video);
+    const ctx = canvasRef.current.getContext("2d");
+    drawRect(predictions, ctx);
   };
 
-  // Fonction de capture
-const capture = async () => {
-  const imageSrc = webcamRef.current.getScreenshot(); 
-  // setImgSrc(imageSrc); // affichage direct
+  const capture = async () => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    const net = modelRef.current;
+    const video = webcamRef.current?.video;
+    let predictions = [];
 
-  const net = modelRef.current;
-  const video = webcamRef.current?.video;
-  let predictions = [];
+    if (video && video.readyState === 4 && net) {
+      predictions = await net.detect(video);
+    }
 
-  if (video && video.readyState === 4 && net) {
-    predictions = await net.detect(video);
-  }
+    const now = new Date();
+    const date = now.toLocaleDateString();
+    const time = now.toLocaleTimeString();
 
-  const now = new Date();
-const date = now.toLocaleDateString();   // ⬅️ ex: "26/04/2025"
-const time = now.toLocaleTimeString();   // ⬅️ ex: "04:00:38"
+    const prediction = {
+      name: predictions.length > 0
+        ? predictions.map(p => p.class).join(", ")
+        : "Aucune détection",
+      date,
+      time,
+      image: imageSrc,
+      objects: predictions
+    };
 
-const prediction = {
-  name: predictions.length > 0 ? predictions.map(p => p.class).join(", ") : "Aucune détection",
-  date: date,   // ⬅️ juste la date
-  time: time,   // ⬅️ juste l'heure
-  image: imageSrc,
-  objects: predictions
-};
-
-
-  const updatedHistory = [...history, prediction];
-  localStorage.setItem("predictions", JSON.stringify(updatedHistory));
-  setHistory(updatedHistory);
+    const updatedHistory = [...history, prediction];
+    localStorage.setItem("predictions", JSON.stringify(updatedHistory));
+    setHistory(updatedHistory);
+    setImgSrc(imageSrc);
   };
 
   return (
-    <div className="App">
-      <Webcam
-        ref={webcamRef}
-        muted={true}
-        screenshotFormat="image/png"
-        width={640}
-        height={480}
-    style={{
-            position: "absolute",
-            marginLeft: "auto",
-            marginRight: "auto",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zindex: 9,
-            width: 640,
-            height: 480,
-          }}
-      />
-      <canvas
-        ref={canvasRef}
-             style={{
-            position: "absolute",
-            marginLeft: "auto",
-            marginRight: "auto",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zindex: 8,
-            width: 640,
-            height: 480,
-          }}
-      />
-      <button className="snapshot-btn" onClick={capture}>
+    <div className="flex w-full h-screen">
+      <div className="bg-[#22333B]">
+            <div className="flex flex-col items-center gap-6 p-4">
+      <div className="relative w-full max-w-[500px]">
+        <Webcam
+          ref={webcamRef}
+          muted
+          screenshotFormat="image/png"
+          // className="absolute top-0 left-0 w-full h-auto z-8 rounded-lg"
+        />
+        <canvas
+          ref={canvasRef}
+          className="absolute top-0 left-0 w-full h-auto z-9 rounded-lg"
+        />
+      </div>
+
+      <button
+        onClick={capture}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow z-10 absolute left-15"
+      >
         SnapShot
       </button>
+
       {imgSrc && (
         <img
           src={imgSrc}
           alt="Snapshot"
-          style={{ marginTop: 10, width: 320, height: 240 }}
+          className="mt-4 w-80 mx-auto rounded-lg"
         />
       )}
-      {history.length > 0 && (
-        <div style={{ marginTop: 20 }}>
-          <h3>Historique des prédictions</h3>
-          <ul>
-            {history.map((item, idx) => (
-              <li key={idx}>
-                <strong >{item.date}</strong> | <strong>{item.time}</strong> - {item.name}
+      </div>
+      </div>
+      
 
-                <br />
-                <img src={item.image} alt="Snapshot" style={{ width: 160, margin: 5 }} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+
+      <div className="bg-[#C4C4C4] w-full">
+        <PredictionHistory history={history}/>
+      </div>
     </div>
   );
 }
