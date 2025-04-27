@@ -4,6 +4,8 @@ import * as cocossd from "@tensorflow-models/coco-ssd";
 import Webcam from "react-webcam";
 import { drawRect } from "../assets/js/utilities.js";
 
+
+
 function Detection() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -90,30 +92,35 @@ const prediction = {
     <div className="App">
       <Webcam
         ref={webcamRef}
-        muted
+        muted={true}
         screenshotFormat="image/png"
         width={640}
         height={480}
-        style={{
-          marginLeft: "auto",
-          marginRight: "auto",
-          left: 0,
-          right: 0,
-          textAlign: "center",
-          zIndex: 9,
-        }}
+    style={{
+            position: "absolute",
+            marginLeft: "auto",
+            marginRight: "auto",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            zindex: 9,
+            width: 640,
+            height: 480,
+          }}
       />
       <canvas
         ref={canvasRef}
-        style={{
-          position: "absolute",
-          marginLeft: "auto",
-          marginRight: "auto",
-          left: 0,
-          right: 0,
-          textAlign: "center",
-          zIndex: 8,
-        }}
+             style={{
+            position: "absolute",
+            marginLeft: "auto",
+            marginRight: "auto",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            zindex: 8,
+            width: 640,
+            height: 480,
+          }}
       />
       <button className="snapshot-btn" onClick={capture}>
         SnapShot
@@ -131,7 +138,7 @@ const prediction = {
           <ul>
             {history.map((item, idx) => (
               <li key={idx}>
-                <strong>{item.date}</strong> | <strong>{item.time}</strong> - {item.name}
+                <strong >{item.date}</strong> | <strong>{item.time}</strong> - {item.name}
 
                 <br />
                 <img src={item.image} alt="Snapshot" style={{ width: 160, margin: 5 }} />
