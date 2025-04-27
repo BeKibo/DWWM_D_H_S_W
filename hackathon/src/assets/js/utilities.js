@@ -1,13 +1,12 @@
-import { upcastType } from "@tensorflow/tfjs";
 
 const classColors = {};
 const colorTimers = {};
-const COLOR_REFRESH_DELAY = 1000; // 10 secondes
+const COLOR_REFRESH_DELAY = 1000;
 
 function generatePastelColor() {
-  const r = Math.floor(Math.random() * 100 + 200); // 120–200
-  const g = Math.floor(Math.random() * 100 + 200);
-  const b = Math.floor(Math.random() * 100 + 200);
+  const r = Math.floor(Math.random() * 100 + 100);
+  const g = Math.floor(Math.random() * 100 + 100);
+  const b = Math.floor(Math.random() * 100 + 100);
   return `rgb(${r}, ${g}, ${b})`;
 }
 
@@ -18,26 +17,30 @@ export const drawRect = (detections, ctx) => {
     const [x, y, width, height] = prediction['bbox'];
     const text = prediction['class'];
 
-    ctx.font = '18px Arial';
-    ctx.lineWidth = 4;
-
-    // ⏱ Si la couleur n'existe pas ou est trop vieille, on la met à jour
     if (!classColors[text] || now - colorTimers[text] > COLOR_REFRESH_DELAY) {
       classColors[text] = generatePastelColor();
       colorTimers[text] = now;
     }
 
     const color = classColors[text];
-    ctx.strokeStyle = color;
+    const label = text.toUpperCase();
+
+    ctx.font = '18px Arial';
+    ctx.lineWidth = 2;
+
+    // Fond du texte
+    const textWidth = ctx.measureText(label).width;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+    ctx.fillRect(x - 2, y - 24, textWidth + 6, 20);
+
+    // Texte
     ctx.fillStyle = color;
+    ctx.fillText(label, x, y - 8);
 
-    // 📝 Texte
-   ctx.fillText(text.toUpperCase(), x, y - 8);
-
- 
     const cornerLength = 60;
+    ctx.strokeStyle = color;
 
-    // 🔲 Coins caméra
+    // Coins stylisés
     ctx.beginPath();
     ctx.moveTo(x, y + cornerLength);
     ctx.lineTo(x, y);
