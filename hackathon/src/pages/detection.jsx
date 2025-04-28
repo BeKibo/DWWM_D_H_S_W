@@ -5,7 +5,7 @@ import * as cocossd from "@tensorflow-models/coco-ssd";
 import { drawRect } from "../assets/js/utilities";
 import PredictionHistory from "../components/PredictionHistory";
 import header from "../components/header";
-
+import snapshot from "../assets/img/cam.png"
 function Detection() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -79,15 +79,15 @@ function Detection() {
   };
 
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex  w-full h-screen">
       <div className="bg-[#22333B]">
             <div className="flex flex-col items-center gap-6 p-4">
-      <div className="relative w-full max-w-[500px]">
+      <div className="relative w-full min-w-[700px]">
         <Webcam
           ref={webcamRef}
           muted
           screenshotFormat="image/png"
-          // className="absolute top-0 left-0 w-full h-auto z-8 rounded-lg"
+          className="absolute top-0 left-0 w-full h-auto z-8 rounded-lg "
         />
         <canvas
           ref={canvasRef}
@@ -97,9 +97,9 @@ function Detection() {
 
       <button
         onClick={capture}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow z-10 absolute left-15"
+        className=" - py-2 px-6 rounded-lg shadow z-10 absolute left-15 "
       >
-        SnapShot
+         <img src={snapshot} alt="Description" />
       </button>
 
       {imgSrc && (
@@ -114,7 +114,7 @@ function Detection() {
       
 
 
-      <div className="bg-[#C4C4C4] w-full">
+      <div className="bg-[#C4C4C4] noise-bg w-full">
         <PredictionHistory history={history}/>
       </div>
     </div>
