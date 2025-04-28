@@ -1,11 +1,15 @@
 import React from 'react';
 import logo from '../assets/img/obshot.png';
 import qrc from '../assets/img/qrc.png';
-
+import noise2 from '../assets/img/noise2.png';
 const Footer = () => {
     return (
         <div>
-            <footer className="bg-[#30044E] w-full ">
+            <footer className="bg-[#30044E] w-full "
+              style={{
+                      backgroundImage: `url(${noise2})`,
+                  }}
+        >
                 <div className="p-10 text-white flex justify-between items-center">
                     <div>
                         <h2 className="font-bold text-2xl">TEAM</h2>
