@@ -4,29 +4,38 @@ import * as tf from "@tensorflow/tfjs";
 import * as cocossd from "@tensorflow-models/coco-ssd";
 import { drawRect } from "../assets/js/utilities";
 import PredictionHistory from "../components/PredictionHistory";
-import snapshot from "../assets/img/cam.png"
+import snapshot from "../assets/img/cam.png";
+import noise from "../assets/img/noise.png";
+import noise2 from "../assets/img/noise2.png";
+
+
 function Detection() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const modelRef = useRef(null);
-  const [imgSrc, setImgSrc] = useState(null);
-  const [history, setHistory] = useState([]);
+  const [reloadId, setReloadId] = useState(0); // ➔ Pour recharger PredictionHistory
 
   useEffect(() => {
-    const loadModelAndHistory = async () => {
+    const loadModel = async () => {
       modelRef.current = await cocossd.load();
-      const stored = localStorage.getItem("predictions");
-      if (stored) setHistory(JSON.parse(stored));
     };
-    loadModelAndHistory();
+    loadModel();
   }, []);
 
+  // Détection continue
   useEffect(() => {
-    const interval = setInterval(() => {
-      detect();
-    }, 100);
+    let animationFrameId;
 
-    return () => clearInterval(interval);
+    const runDetection = async () => {
+      await detect();
+      animationFrameId = requestAnimationFrame(runDetection);
+    };
+
+    runDetection();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   const detect = async () => {
@@ -47,70 +56,103 @@ function Detection() {
     drawRect(predictions, ctx);
   };
 
+  const uploadSnapshot = async (imageSrc, labels, person = "Unknown") => {
+    try {
+      const blob = await (await fetch(imageSrc)).blob();
+      const formData = new FormData();
+
+      formData.append('snapshot', blob, 'snapshot.png');
+      formData.append('person', person);
+
+      if (Array.isArray(labels)) {
+        labels.forEach(label => formData.append('labels', label));
+      } else {
+        formData.append('labels', labels || 'Unknown');
+      }
+
+      await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Upload successful');
+    } catch (error) {
+      console.error('Upload failed', error);
+    }
+  };
+
   const capture = async () => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    const net = modelRef.current;
     const video = webcamRef.current?.video;
+
+    if (!video) return;
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    const ctx = tempCanvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+
+    const imageSrc = tempCanvas.toDataURL('image/png');
+
+    const net = modelRef.current;
     let predictions = [];
 
     if (video && video.readyState === 4 && net) {
       predictions = await net.detect(video);
     }
 
-    const now = new Date();
-    const date = now.toLocaleDateString();
-    const time = now.toLocaleTimeString();
+    const labels = predictions.length > 0
+      ? predictions.map(p => p.class)
+      : ["No Detection"];
 
-    const prediction = {
-      name: predictions.length > 0
-        ? predictions.map(p => p.class).join(", ")
-        : "Aucune détection",
-      date,
-      time,
-      image: imageSrc,
-      objects: predictions
-    };
+    await uploadSnapshot(imageSrc, labels);
 
-    const updatedHistory = [...history, prediction];
-    localStorage.setItem("predictions", JSON.stringify(updatedHistory));
-    setHistory(updatedHistory);
-    
+    setReloadId(prev => prev + 1); // ➔ Recharge uniquement PredictionHistory
   };
 
   return (
     <div className="flex w-full h-screen">
-      <div className="bg-[#22333B]">
-            <div className="flex flex-col items-center gap-6 p-4">
-      <div className="relative w-full min-w-[700px]">
-        <Webcam
-          ref={webcamRef}
-          muted
-          screenshotFormat="image/png"
-          className="top-0 left-0 w-full h-auto z-8 rounded-lg "
-        />
-        <canvas
-          ref={canvasRef}
-          className="absolute top-0 left-0 w-full h-auto z-9 rounded-lg"
-        />
-      </div>
-
-        </div>
-           <button
-        onClick={capture}
-        className=" w-20 h-20 m-5"
+      {/* Zone caméra */}
+      <div className="bg-[#22333B] flex flex-col gap-6 p-4
+        style={{
+          backgroundImage: `url(${noise2})`,
+      }}"
       >
-         <img src={snapshot} alt="Snap Shot" />
-      </button>
+        <div className="relative w-full min-w-[700px]">
+          <Webcam
+            ref={webcamRef}
+            muted
+            screenshotFormat="image/png"
+            className="top-0 left-0 w-full h-auto z-8 rounded-lg"
+          />
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-auto z-9 rounded-lg"
+          />
+        </div>
+
+        {/* Bouton Capture */}
+        <button onClick={capture} className="w-20 h-20 mx-5">
+          <img src={snapshot} alt="Snap Shot" />
+        </button>
+
+        {/* Instructions */}
         <div className="text-[#c4c4c4] text-2xl p-5 gap-4 flex flex-col">
-           <p>Please position the target object directly in front of the camera, ensuring there are no other items obstructing its visibility.</p>
+          <p>Please position the target object directly in front of the camera, ensuring there are no other items obstructing its visibility.</p>
           <p>After capturing your photo, you will be able to view it on the right along with the following information: Date and Type.</p>
         </div>
       </div>
+
+      {/* Zone historique */}
+      <div className="bg-[#C4C4C4]  noise-bg w-full h-screen"
+        style={{
+          backgroundImage: `url(${noise})`,
+      }}
+
       
-
-
-      <div className="bg-[#C4C4C4] noise-bg w-full h-screen ">
-        <PredictionHistory history={history}/>
+      
+      >
+        <PredictionHistory key={reloadId} /> {/* Key dynamique pour reload */}
       </div>
     </div>
   );

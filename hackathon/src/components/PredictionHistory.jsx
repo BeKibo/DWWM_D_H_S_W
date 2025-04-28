@@ -1,14 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function PredictionHistory({ history }) {
-  const [currentPage, setCurrentPage] = useState(0); // Nouvelle page
-  const itemsPerPage = 12; // 12 cartes par page
+function PredictionHistory() {
+  const [history, setHistory] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 12;
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/snapshots');
+        const data = await response.json();
+        setHistory(data.reverse());
+      } catch (error) {
+        console.error('Failed to fetch snapshots', error);
+      }
+    };
+
+    fetchHistory();
+  }, []); // Le composant sera recréé quand reloadId change grâce à la key dynamique
 
   if (!history.length) return null;
 
   const startIndex = currentPage * itemsPerPage;
   const selectedHistory = history.slice(startIndex, startIndex + itemsPerPage);
-
   const totalPages = Math.ceil(history.length / itemsPerPage);
 
   const goToNextPage = () => {
@@ -22,32 +36,34 @@ function PredictionHistory({ history }) {
   return (
     <div className="mt-5">
       <h3 className="text-2xl font-semibold mb-4 px-5 uppercase">
-        Historique des prédictions
+        Gallery History
       </h3>
 
       <ul className="space-y-6 grid grid-cols-4">
         {selectedHistory.map((item, idx) => (
-          <li key={idx} className="bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 mx-5 w-50 h-60">
-            
-            {item.image && (
+          <li key={idx} className="bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 mx-5 w-55 h-60">
+            {item.filepath && (
               <img
-                src={item.image}
+                src={`http://localhost:5000${item.filepath}`}
                 alt="Snapshot"
-                className="w-50 rounded"
+                className="w-55 rounded"
               />
             )}
 
-            <div className="text-m mb-2">
+            <div className="text-s">
               <div>{item.date} | {item.time}</div>
-              <div className="flex flex-wrap w-full font-bold uppercase">{item.name}</div>
+              <div className="flex flex-wrap w-full">
+                {item.labels.map((label, idx2) => (
+                  <span key={idx2} className="px-1">{label}</span>
+                ))}
+              </div>
             </div>
-
           </li>
         ))}
       </ul>
 
       {/* Pagination Controls */}
-      <div className="flex justify-center items-center  gap-4">
+      <div className="flex justify-center items-center gap-4">
         <button
           onClick={goToPreviousPage}
           disabled={currentPage === 0}
@@ -55,7 +71,9 @@ function PredictionHistory({ history }) {
         >
           Précédent
         </button>
-        <span className="text-xl font-semibold">{currentPage + 1} / {totalPages}</span>
+        <span className="text-xl font-semibold">
+          {currentPage + 1} / {totalPages}
+        </span>
         <button
           onClick={goToNextPage}
           disabled={currentPage === totalPages - 1}
