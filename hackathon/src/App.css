@@ -3,14 +3,7 @@
 .App {
   text-align: center;
 }
-button {
-  background-color: #282c34;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
+
 
 .App-logo {
   height: 40vmin;

@@ -4,7 +4,6 @@ import * as tf from "@tensorflow/tfjs";
 import * as cocossd from "@tensorflow-models/coco-ssd";
 import { drawRect } from "../assets/js/utilities";
 import PredictionHistory from "../components/PredictionHistory";
-import header from "../components/header";
 import snapshot from "../assets/img/cam.png"
 function Detection() {
   const webcamRef = useRef(null);
@@ -75,11 +74,11 @@ function Detection() {
     const updatedHistory = [...history, prediction];
     localStorage.setItem("predictions", JSON.stringify(updatedHistory));
     setHistory(updatedHistory);
-    setImgSrc(imageSrc);
+    
   };
 
   return (
-    <div className="flex  w-full h-screen">
+    <div className="flex w-full h-screen">
       <div className="bg-[#22333B]">
             <div className="flex flex-col items-center gap-6 p-4">
       <div className="relative w-full min-w-[700px]">
@@ -87,7 +86,7 @@ function Detection() {
           ref={webcamRef}
           muted
           screenshotFormat="image/png"
-          className="absolute top-0 left-0 w-full h-auto z-8 rounded-lg "
+          className="top-0 left-0 w-full h-auto z-8 rounded-lg "
         />
         <canvas
           ref={canvasRef}
@@ -95,26 +94,22 @@ function Detection() {
         />
       </div>
 
-      <button
+        </div>
+           <button
         onClick={capture}
-        className=" - py-2 px-6 rounded-lg shadow z-10 absolute left-15 "
+        className=" w-20 h-20 m-5"
       >
-         <img src={snapshot} alt="Description" />
+         <img src={snapshot} alt="Snap Shot" />
       </button>
-
-      {imgSrc && (
-        <img
-          src={imgSrc}
-          alt="Snapshot"
-          className="mt-4 w-80 mx-auto rounded-lg"
-        />
-      )}
-      </div>
+        <div className="text-[#c4c4c4] text-2xl p-5 gap-4 flex flex-col">
+           <p>Please position the target object directly in front of the camera, ensuring there are no other items obstructing its visibility.</p>
+          <p>After capturing your photo, you will be able to view it on the right along with the following information: Date and Type.</p>
+        </div>
       </div>
       
 
 
-      <div className="bg-[#C4C4C4] noise-bg w-full">
+      <div className="bg-[#C4C4C4] noise-bg w-full h-screen ">
         <PredictionHistory history={history}/>
       </div>
     </div>
