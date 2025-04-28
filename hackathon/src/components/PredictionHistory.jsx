@@ -4,7 +4,7 @@ import LiquidPagination from "./LiquidPagination";
 function PredictionHistory() {
   const [history, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 12;
+  const [itemsPerPage, setItemsPerPage] = useState(12); // Dynamique selon l'écran
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -20,15 +20,38 @@ function PredictionHistory() {
     fetchHistory();
   }, []);
 
+  useEffect(() => {
+    const updateItemsPerPage = () => {
+      const width = window.innerWidth;
+      if (width <= 640) {
+        setItemsPerPage(4); // Mobile
+      } else if (width <= 1400) {
+        setItemsPerPage(6); // Tablette
+      } else {
+        setItemsPerPage(12); // PC
+      }
+    };
+
+    updateItemsPerPage();
+    window.addEventListener('resize', updateItemsPerPage);
+    return () => window.removeEventListener('resize', updateItemsPerPage);
+  }, []);
+
+  if (!history.length) {
+    return (
+      <div className="flex flex-col items-center justify-center mt-10">
+        <h3 className="text-2xl font-semibold mb-4 px-5 uppercase">Gallery History</h3>
+        <p className="text-gray-500 text-lg italic">No history yet.</p>
+      </div>
+    );
+  }
+
   const startIndex = currentPage * itemsPerPage;
   const selectedHistory = history.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(history.length / itemsPerPage);
 
   const removeSnapshot = async (snapshot) => {
-    if (!snapshot) {
-      console.error('Snapshot not found!');
-      return;
-    }
+    if (!snapshot) return;
 
     const confirmDelete = window.confirm("Are you sure you want to delete this snapshot?");
     if (!confirmDelete) return;
@@ -50,43 +73,29 @@ function PredictionHistory() {
     }
   };
 
-  // Si l'historique est vide, afficher un message responsive
-  if (!history.length) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] px-6 text-center">
-        <h3 className="text-2xl font-semibold mb-4 uppercase">
-          Historique des prédictions
-        </h3>
-        <p className="text-gray-500 text-lg italic">
-          Aucun historique pour le moment.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="mt-2 px-4">
       <h3 className="text-2xl font-semibold mb-6 uppercase text-center">
         Gallery History
       </h3>
 
-      {/* Grid Responsive */}
-      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-7xl mx-auto">
         {selectedHistory.map((item, idx) => (
           <li key={idx} className="relative bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 transition hover:scale-105 duration-300">
-            
-            {/* Bouton Delete en haut à droite */}
-          <button className="absolute top-0 right-0 text-black hover:text-red-500 c" onClick={() => removeSnapshot(item)}>
+            <button
+              className="absolute -top-2 -right-2 text-black hover:text-red-500"
+              onClick={() => removeSnapshot(item)}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
-             </button>
+            </button>
 
             {item.filepath && (
               <img
                 src={`http://localhost:5000${item.filepath}`}
                 alt="Snapshot"
-                className="rounded w-full object-cover h-40 sm:h-48 md:h-52 lg:h-56 xl:h-60"
+                className="rounded w-full object-cover h-40 sm:h-48 md:h-56 lg:h-60"
               />
             )}
 
@@ -102,7 +111,6 @@ function PredictionHistory() {
         ))}
       </ul>
 
-      {/* Pagination centrée */}
       <div className="flex justify-center mt-8">
         <LiquidPagination
           currentPage={currentPage}

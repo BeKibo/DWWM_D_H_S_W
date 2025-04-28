@@ -7,13 +7,13 @@ import PredictionHistory from "../components/PredictionHistory";
 import snapshot from "../assets/img/cam.png";
 import noise from "../assets/img/noise.png";
 import noise2 from "../assets/img/noise2.png";
-import Sound from "../assets/sound/capture.mp3"; // Importer le son de capture
+import Sound from "../assets/sound/capture.mp3";
 
 function Detection() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const modelRef = useRef(null);
-  const [reloadId, setReloadId] = useState(0); // ➔ Pour recharger PredictionHistory
+  const [reloadId, setReloadId] = useState(0);
 
   useEffect(() => {
     const loadModel = async () => {
@@ -22,7 +22,6 @@ function Detection() {
     loadModel();
   }, []);
 
-  // Détection continue
   useEffect(() => {
     let animationFrameId;
 
@@ -56,10 +55,10 @@ function Detection() {
     drawRect(predictions, ctx);
   };
 
-    const playSound = () => {
-    const audio = new Audio(Sound); 
+  const playSound = () => {
+    const audio = new Audio(Sound);
     audio.play();
-  }
+  };
 
   const uploadSnapshot = async (imageSrc, labels, person = "Unknown") => {
     try {
@@ -112,53 +111,56 @@ function Detection() {
 
     await uploadSnapshot(imageSrc, labels);
 
-    setReloadId(prev => prev + 1); // ➔ Recharge uniquement PredictionHistory
+    setReloadId(prev => prev + 1);
   };
 
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex flex-col md:flex-row w-full h-auto min-h-screen">
       {/* Zone caméra */}
-      <div className="bg-[#22333B] flex flex-col gap-6 p-4"
-        style={{
-          backgroundImage: `url(${noise2})`,
-      }}
+      <div
+        className="bg-[#22333B] w-full md:w-1/3 flex flex-col gap-6 p-4"
+        style={{ backgroundImage: `url(${noise2})` }}
       >
-        <div className="relative w-full min-w-[700px]">
-          <Webcam
-            ref={webcamRef}
-            muted
-            screenshotFormat="image/png"
-            className="w-full h-auto z-8 rounded-lg"
-          />
-          <canvas
-            ref={canvasRef}
-            className="absolute top-0 left-0 w-full h-auto z-9 rounded-lg"
-          />
-        </div>
+        <div className="flex flex-col gap-6 p-4 w-full">
+          <div className="relative w-full min-w-0 mx-auto aspect-video" id="bottom">
+            <Webcam
+              ref={webcamRef}
+              muted
+              screenshotFormat="image/png"
+              className="absolute top-0 left-0 w-full h-full object-cover z-8 rounded-lg"
+            />
+            <canvas
+              ref={canvasRef}
+              className="absolute top-0 left-0 w-full h-full object-cover z-9 rounded-lg pointer-events-none"
+            />
+          </div>
 
-        {/* Bouton Capture */}
-        <button onClick={() => {capture(); playSound();}}
-          className="w-20 h-20 mx-5 cursor-pointer">
-          <img src={snapshot} alt="Snap Shot" />
-        </button>
+          {/* Bouton Capture */}
+          <button
+            onClick={() => { capture(); playSound(); }}
+            className="w-16 h-16 md:w-20 md:h-20 cursor-pointer mx-5"
+          >
+            <img src={snapshot} alt="Snap Shot" className="w-full h-full object-contain" />
+          </button>
 
-        {/* Instructions */}
-        <div className="text-[#c4c4c4] text-2xl p-5 gap-4 flex flex-col">
-          <p>Please position the target object directly in front of the camera, ensuring there are no other items obstructing its visibility.</p>
-          <p>After capturing your photo, you will be able to view it on the right along with the following information: Date and Type.</p>
+          {/* Instructions */}
+          <div className="text-[#c4c4c4] text-base md:text-2xl p-2 md:p-5 gap-4 flex flex-col md:text-left text-center">
+            <p>
+              Please position the target object directly in front of the camera, ensuring there are no other items obstructing its visibility.
+            </p>
+            <p>
+              After capturing your photo, you will be able to view it on the right along with the following information: Date and Type.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Zone historique */}
-      <div className="bg-[#C4C4C4]  noise-bg w-full h-screen"
-        style={{
-          backgroundImage: `url(${noise})`,
-      }}
-
-      
-      
+      <div
+        className="bg-[#C4C4C4] w-full md:w-2/3 min-h-[40vh] md:min-h-screen overflow-y-auto"
+        style={{ backgroundImage: `url(${noise})` }}
       >
-        <PredictionHistory key={reloadId} /> {/* Key dynamique pour reload */}
+        <PredictionHistory key={reloadId} />
       </div>
     </div>
   );
