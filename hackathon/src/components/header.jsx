@@ -56,7 +56,7 @@ const Header = () => {
             tabIndex={0}
             role="button"
             aria-label="Descendre"
-            onKeyPress={e => {
+            onKeyDown={e => {
               if (e.key === "Enter" || e.key === " ") {
                 const element = document.getElementById('bottom');
                 if (element) {

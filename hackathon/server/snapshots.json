@@ -100,33 +100,63 @@
     "filepath": "/uploads/Unknown_1745869503172.png"
   },
   {
-    "id": 1745869503980,
-    "filename": "Unknown_1745869503978.png",
+    "id": 1745872595262,
+    "filename": "Unknown_1745872595260.png",
     "labels": [
       "person"
     ],
     "date": "4/28/2025",
-    "time": "9:45:03 PM",
-    "filepath": "/uploads/Unknown_1745869503978.png"
+    "time": "10:36:35 PM",
+    "filepath": "/uploads/Unknown_1745872595260.png"
   },
   {
-    "id": 1745869504733,
-    "filename": "Unknown_1745869504730.png",
+    "id": 1745872599935,
+    "filename": "Unknown_1745872599932.png",
     "labels": [
-      "person"
+      "cell phone"
     ],
     "date": "4/28/2025",
-    "time": "9:45:04 PM",
-    "filepath": "/uploads/Unknown_1745869504730.png"
+    "time": "10:36:39 PM",
+    "filepath": "/uploads/Unknown_1745872599932.png"
   },
   {
-    "id": 1745869505594,
-    "filename": "Unknown_1745869505592.png",
+    "id": 1745872606259,
+    "filename": "Unknown_1745872606257.png",
     "labels": [
-      "person"
+      "No Detection"
     ],
     "date": "4/28/2025",
-    "time": "9:45:05 PM",
-    "filepath": "/uploads/Unknown_1745869505592.png"
+    "time": "10:36:46 PM",
+    "filepath": "/uploads/Unknown_1745872606257.png"
+  },
+  {
+    "id": 1745872613609,
+    "filename": "Unknown_1745872613607.png",
+    "labels": [
+      "chair"
+    ],
+    "date": "4/28/2025",
+    "time": "10:36:53 PM",
+    "filepath": "/uploads/Unknown_1745872613607.png"
+  },
+  {
+    "id": 1745872641576,
+    "filename": "Unknown_1745872641573.png",
+    "labels": [
+      "remote"
+    ],
+    "date": "4/28/2025",
+    "time": "10:37:21 PM",
+    "filepath": "/uploads/Unknown_1745872641573.png"
+  },
+  {
+    "id": 1745872648267,
+    "filename": "Unknown_1745872648265.png",
+    "labels": [
+      "No Detection"
+    ],
+    "date": "4/28/2025",
+    "time": "10:37:28 PM",
+    "filepath": "/uploads/Unknown_1745872648265.png"
   }
 ]
