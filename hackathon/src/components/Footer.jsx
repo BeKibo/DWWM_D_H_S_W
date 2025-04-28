@@ -5,7 +5,7 @@ import qrc from '../assets/img/qrc.png';
 const Footer = () => {
     return (
         <div>
-            <footer className="bg-violet-950 w-full">
+            <footer className="bg-[#30044E] w-full">
                 <div className="p-10 text-white flex justify-between items-center">
                     <div>
                         <h2 className="font-bold text-2xl">TEAM</h2>
