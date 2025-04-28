@@ -128,7 +128,7 @@ function Detection() {
             ref={webcamRef}
             muted
             screenshotFormat="image/png"
-            className="top-0 left-0 w-full h-auto z-8 rounded-lg"
+            className="w-full h-auto z-8 rounded-lg"
           />
           <canvas
             ref={canvasRef}
