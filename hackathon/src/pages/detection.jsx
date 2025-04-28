@@ -7,7 +7,7 @@ import PredictionHistory from "../components/PredictionHistory";
 import snapshot from "../assets/img/cam.png";
 import noise from "../assets/img/noise.png";
 import noise2 from "../assets/img/noise2.png";
-
+import Sound from "../assets/sound/capture.mp3"; // Importer le son de capture
 
 function Detection() {
   const webcamRef = useRef(null);
@@ -55,6 +55,11 @@ function Detection() {
     const ctx = canvasRef.current.getContext("2d");
     drawRect(predictions, ctx);
   };
+
+    const playSound = () => {
+    const audio = new Audio(Sound); 
+    audio.play();
+  }
 
   const uploadSnapshot = async (imageSrc, labels, person = "Unknown") => {
     try {
@@ -113,10 +118,10 @@ function Detection() {
   return (
     <div className="flex w-full h-screen">
       {/* Zone caméra */}
-      <div className="bg-[#22333B] flex flex-col gap-6 p-4
+      <div className="bg-[#22333B] flex flex-col gap-6 p-4"
         style={{
           backgroundImage: `url(${noise2})`,
-      }}"
+      }}
       >
         <div className="relative w-full min-w-[700px]">
           <Webcam
@@ -132,7 +137,8 @@ function Detection() {
         </div>
 
         {/* Bouton Capture */}
-        <button onClick={capture} className="w-20 h-20 mx-5">
+        <button onClick={() => {capture(); playSound();}}
+          className="w-20 h-20 mx-5 cursor-pointer">
           <img src={snapshot} alt="Snap Shot" />
         </button>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import LiquidPagination from "./LiquidPagination";
 
 function PredictionHistory() {
   const [history, setHistory] = useState([]);
@@ -17,42 +18,81 @@ function PredictionHistory() {
     };
 
     fetchHistory();
-  }, []); // Le composant sera recréé quand reloadId change grâce à la key dynamique
-
-  if (!history.length) return null;
+  }, []);
 
   const startIndex = currentPage * itemsPerPage;
   const selectedHistory = history.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(history.length / itemsPerPage);
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1);
+  const removeSnapshot = async (snapshot) => {
+    if (!snapshot) {
+      console.error('Snapshot not found!');
+      return;
+    }
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this snapshot?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/snapshots/${snapshot.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        const updatedHistory = history.filter((snap) => snap.id !== snapshot.id);
+        setHistory(updatedHistory);
+        alert("Snapshot deleted successfully ✅");
+      } else {
+        console.error("Failed to delete snapshot on server");
+      }
+    } catch (error) {
+      console.error("Error deleting snapshot:", error);
+    }
   };
 
-  const goToPreviousPage = () => {
-    if (currentPage > 0) setCurrentPage(currentPage - 1);
-  };
+  // Si l'historique est vide, afficher un message responsive
+  if (!history.length) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] px-6 text-center">
+        <h3 className="text-2xl font-semibold mb-4 uppercase">
+          Historique des prédictions
+        </h3>
+        <p className="text-gray-500 text-lg italic">
+          Aucun historique pour le moment.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="mt-5">
-      <h3 className="text-2xl font-semibold mb-4 px-5 uppercase">
+    <div className="mt-2 px-4">
+      <h3 className="text-2xl font-semibold mb-6 uppercase text-center">
         Gallery History
       </h3>
 
-      <ul className="space-y-6 grid grid-cols-4">
+      {/* Grid Responsive */}
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
         {selectedHistory.map((item, idx) => (
-          <li key={idx} className="bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 mx-5 w-55 h-60">
+          <li key={idx} className="relative bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 transition hover:scale-105 duration-300">
+            
+            {/* Bouton Delete en haut à droite */}
+          <button className="absolute top-0 right-0 text-black hover:text-red-500 c" onClick={() => removeSnapshot(item)}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+             </button>
+
             {item.filepath && (
               <img
                 src={`http://localhost:5000${item.filepath}`}
                 alt="Snapshot"
-                className="w-55 rounded"
+                className="rounded w-full object-cover h-40 sm:h-48 md:h-52 lg:h-56 xl:h-60"
               />
             )}
 
-            <div className="text-s">
+            <div className="text-sm text-center">
               <div>{item.date} | {item.time}</div>
-              <div className="flex flex-wrap w-full">
+              <div className="flex flex-wrap justify-center gap-1 font-semibold uppercase mt-1">
                 {item.labels.map((label, idx2) => (
                   <span key={idx2} className="px-1">{label}</span>
                 ))}
@@ -62,25 +102,13 @@ function PredictionHistory() {
         ))}
       </ul>
 
-      {/* Pagination Controls */}
-      <div className="flex justify-center items-center gap-4">
-        <button
-          onClick={goToPreviousPage}
-          disabled={currentPage === 0}
-          className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
-        >
-          Précédent
-        </button>
-        <span className="text-xl font-semibold">
-          {currentPage + 1} / {totalPages}
-        </span>
-        <button
-          onClick={goToNextPage}
-          disabled={currentPage === totalPages - 1}
-          className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
-        >
-          Suivant
-        </button>
+      {/* Pagination centrée */}
+      <div className="flex justify-center mt-8">
+        <LiquidPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          goToPage={setCurrentPage}
+        />
       </div>
     </div>
   );
