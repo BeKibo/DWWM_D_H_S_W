@@ -79,11 +79,12 @@ function PredictionHistory() {
         Gallery History
       </h3>
 
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-7xl mx-auto">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+
         {selectedHistory.map((item, idx) => (
-          <li key={idx} className="relative bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 transition hover:scale-105 duration-300">
+          <li key={idx} className="relative bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 transition hover:scale-105 duration-300 ">
             <button
-              className="absolute -top-2 -right-2 text-black hover:text-red-500"
+              className="absolute top-0 right-0 text-black hover:text-red-500"
               onClick={() => removeSnapshot(item)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
