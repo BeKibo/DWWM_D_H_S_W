@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const { person } = req.body;
     const timestamp = Date.now();
-    const safePerson = (person || 'Unknown').replace(/\s+/g, '_');
+    const safePerson = (person || 'snap').replace(/\s+/g, '_');
     const filename = `${safePerson}_${timestamp}.png`;
     cb(null, filename);
   }

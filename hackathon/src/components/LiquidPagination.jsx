@@ -19,7 +19,8 @@ export default function DotPagination({ currentPage, totalPages, goToPage }) {
   }, [currentPage]); // Chaque fois que la page change, animation sur le nouveau dot
 
   const pages = Array.from({ length: totalPages }, (_, i) => i);
-
+  // Crée un tableau de 0 à totalPages - 1
+  // Utilise Array.from pour générer un tableau de la longueur totalPages
   return (
     <div className="flex gap-4 items-center justify-center py-8">
       {pages.map((page) => (

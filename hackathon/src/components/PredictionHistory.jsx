@@ -81,6 +81,10 @@ function PredictionHistory() {
 
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
 
+        // affiche les images de l'historique
+        // si il n'y a pas d'image, affiche un message d'erreur
+        // si il y a une image, affiche l'image et les labels associés
+
         {selectedHistory.map((item, idx) => (
           <li key={idx} className="relative bg-[#c4c4c4]/15 backdrop-blur border border-white/30 rounded-lg shadow-md flex flex-col p-4 gap-2 transition hover:scale-105 duration-300 ">
             <button
@@ -92,6 +96,9 @@ function PredictionHistory() {
               </svg>
             </button>
 
+            // affiche l'image si elle existe
+            // sinon affiche un message d'erreur
+          
             {item.filepath && (
               <img
                 src={`http://localhost:5000${item.filepath}`}
@@ -99,7 +106,8 @@ function PredictionHistory() {
                 className="rounded w-full object-cover h-40 sm:h-48 md:h-56 lg:h-60"
               />
             )}
-
+            // mise en forme de la date et de l'heure et des labels
+            
             <div className="text-sm text-center">
               <div>{item.date} | {item.time}</div>
               <div className="flex flex-wrap justify-center gap-1 font-semibold uppercase mt-1">
@@ -112,6 +120,7 @@ function PredictionHistory() {
         ))}
       </ul>
 
+      // affiche la pagination uniquement si il y a plus d'une page
       <div className="flex justify-center mt-8">
         <LiquidPagination
           currentPage={currentPage}

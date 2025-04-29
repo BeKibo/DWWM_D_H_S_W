@@ -24,7 +24,7 @@ const Footer = () => {
             <span>SOUMIA</span>
           </p>
         </div>
-
+        
         {/* Logo */}
         <figure className="flex-shrink-0 flex justify-center items-center w-32 md:w-48">
           <img src={logo} alt="Logo" className="w-full max-w-[140px] md:max-w-[200px]" />

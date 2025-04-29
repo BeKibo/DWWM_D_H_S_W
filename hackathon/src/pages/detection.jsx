@@ -41,7 +41,7 @@ function Detection() {
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
-
+// permet de détecter les objets en temps réel avec une webcam
   const detect = async () => {
     const video = webcamRef.current?.video;
     const net = modelRef.current;
@@ -64,6 +64,10 @@ function Detection() {
     const audio = new Audio(Sound);
     audio.play();
   };
+  
+
+  // Fonction pour envoyer l'image capturée au serveur
+
 
   const uploadSnapshot = async (imageSrc, labels, person = "Unknown") => {
     try {
@@ -85,6 +89,10 @@ function Detection() {
       console.error('Upload failed', error);
     }
   };
+
+  // Fonction pour capturer une image de la webcam et l'envoyer au serveur
+  // actualise la capture de l'image et l'envoi au serveur
+  // et met à jour l'historique de la galerie
 
   const capture = async () => {
     const video = webcamRef.current?.video;
@@ -111,6 +119,7 @@ function Detection() {
     setReloadId(prev => prev + 1);
   };
 
+  
   return (
     <div className="flex flex-col md:flex-row w-full h-auto min-h-screen">
       {/* Zone caméra */}

@@ -14,28 +14,28 @@ const Header = () => {
 
   return (
     <header className="w-screen h-screen overflow-x-hidden relative">
-      {/* Background principal */}
+      /* Background principal */
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center"
         style={{ backgroundImage: `url(${Background})` }}
         aria-hidden="true"
       ></div>
 
-      {/* Contenu centré */}
+      /* Contenu centré */
       <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-6 px-4 z-10">
-        {/* Logo ObShot */}
+        /* Logo ObShot */
         <div
           className="w-64 h-64 sm:w-48 sm:h-48 md:w-1/2 md:h-1/2 bg-no-repeat bg-contain bg-center animate-pulse"
           style={{ backgroundImage: `url(${ObShot})` }}
           aria-label="ObShot illustration"
         ></div>
 
-        {/* Slogan */}
+        /* Slogan */
         <span className="max-w-xl text-base sm:text-2xl md:text-3xl text-center text-[#c4c4c4] font-semibold">
           Obshot lets you capture any object in real-time with unmatched speed and precision — just point and shoot.
         </span>
 
-        {/* Loader ou Flèche */}
+        /* Loader ou Flèche */
         {loading ? (
           <div className="flex items-center justify-center h-16">
             <div className="stage">
