@@ -14,10 +14,15 @@ function Detection() {
   const canvasRef = useRef(null);
   const modelRef = useRef(null);
   const [reloadId, setReloadId] = useState(0);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadModel = async () => {
-      modelRef.current = await cocossd.load();
+      try {
+        modelRef.current = await cocossd.load();
+      } catch (e) {
+        console.error("Failed to load model", e);
+      }
     };
     loadModel();
   }, []);
@@ -64,21 +69,17 @@ function Detection() {
     try {
       const blob = await (await fetch(imageSrc)).blob();
       const formData = new FormData();
-
       formData.append('snapshot', blob, 'snapshot.png');
       formData.append('person', person);
-
       if (Array.isArray(labels)) {
         labels.forEach(label => formData.append('labels', label));
       } else {
         formData.append('labels', labels || 'Unknown');
       }
-
       await fetch('http://localhost:5000/upload', {
         method: 'POST',
         body: formData,
       });
-
       console.log('Upload successful');
     } catch (error) {
       console.error('Upload failed', error);
@@ -87,7 +88,6 @@ function Detection() {
 
   const capture = async () => {
     const video = webcamRef.current?.video;
-
     if (!video) return;
 
     const tempCanvas = document.createElement('canvas');
@@ -97,7 +97,6 @@ function Detection() {
     ctx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
 
     const imageSrc = tempCanvas.toDataURL('image/png');
-
     const net = modelRef.current;
     let predictions = [];
 
@@ -105,9 +104,7 @@ function Detection() {
       predictions = await net.detect(video);
     }
 
-    const labels = predictions.length > 0
-      ? predictions.map(p => p.class)
-      : ["No Detection"];
+    const labels = predictions.length > 0 ? predictions.map(p => p.class) : ["No Detection"];
 
     await uploadSnapshot(imageSrc, labels);
 
@@ -122,17 +119,24 @@ function Detection() {
         style={{ backgroundImage: `url(${noise2})` }}
       >
         <div className="flex flex-col gap-6 p-4 w-full">
-          <div className="relative w-full min-w-0 mx-auto aspect-video" id="bottom">
-            <Webcam
-              ref={webcamRef}
-              muted
-              screenshotFormat="image/png"
-              className="absolute top-0 left-0 w-full h-full object-cover z-8 rounded-lg"
-            />
-            <canvas
-              ref={canvasRef}
-              className="absolute top-0 left-0 w-full h-full object-cover z-9 rounded-lg pointer-events-none"
-            />
+          <div className="relative w-full min-w-0 mx-auto aspect-video min-h-[200px]" id="bottom">
+            {error ? (
+              <div className="flex items-center justify-center text-white text-xl">Camera access denied</div>
+            ) : (
+              <>
+                <Webcam
+                  ref={webcamRef}
+                  muted
+                  screenshotFormat="image/png"
+                  className="absolute top-0 left-0 w-full h-full object-cover z-8 rounded-lg"
+                  onUserMediaError={() => setError(true)}
+                />
+                <canvas
+                  ref={canvasRef}
+                  className="absolute top-0 left-0 w-full h-full object-cover z-9 rounded-lg pointer-events-none"
+                />
+              </>
+            )}
           </div>
 
           {/* Bouton Capture */}
