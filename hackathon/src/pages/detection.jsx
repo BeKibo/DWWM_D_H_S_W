@@ -121,14 +121,14 @@ function Detection() {
 
   
   return (
-    <div className="flex flex-col md:flex-row w-full h-auto min-h-screen">
+    <div className="flex flex-col md:flex-row w-full h-auto min-h-screen"id="bottom">
       {/* Zone caméra */}
       <div
         className="bg-[#22333B] w-full md:w-1/3 flex flex-col gap-6 p-4"
         style={{ backgroundImage: `url(${noise2})` }}
       >
         <div className="flex flex-col gap-6 p-4 w-full">
-          <div className="relative w-full min-w-0 mx-auto aspect-video min-h-[200px]" id="bottom">
+          <div className="relative w-full min-w-0 mx-auto aspect-video min-h-[200px]" >
             {error ? (
               <div className="flex items-center justify-center text-white text-xl">Camera access denied</div>
             ) : (
